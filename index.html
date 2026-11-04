@@ -6,23 +6,49 @@
     <title>Pascal's Triangle Modulo n</title>
     <style>
         body { font-family: sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
-        input { padding: 5px; margin: 10px; width: 60px; text-align: center; }
-        pre { font-size: 14px; line-height: 1.2; background: white; padding: 20px; display: inline-block; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .controls { background: white; padding: 15px; border-radius: 8px; display: inline-block; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, select { padding: 5px; margin: 5px; text-align: center; }
+        .triangle-container { display: flex; flex-direction: column; align-items: center; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; max-width: 90%; margin: 0 auto; }
+        .row { display: flex; justify-content: center; margin: 2px 0; }
+        .cell { width: 32px; height: 32px; margin: 1px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; font-size: 13px; border: 1px solid rgba(0,0,0,0.05); }
+        #color-pickers { margin-top: 10px; }
     </style>
 </head>
 <body>
     <h1>Pascal's Triangle Modulo n</h1>
-    <label>Rows: <input type="number" id="rows" value="12" min="1" max="30" oninput="generate()"></label>
-    <label>Mod (n): <input type="number" id="mod" value="3" min="2" max="10" oninput="generate()"></label>
-    <br>
-    <pre id="output"></pre>
+    <div class="controls">
+        <label>Rows: <input type="number" id="rows" value="12" min="1" max="25" oninput="updateColors(); generate();"></label>
+        <label>Mod (n): <input type="number" id="mod" value="3" min="2" max="10" oninput="updateColors(); generate();"></label>
+        <div id="color-pickers"></div>
+    </div>
+    <div class="triangle-container" id="output"></div>
 
     <script>
+        function updateColors() {
+            let mod = parseInt(document.getElementById("mod").value);
+            let container = document.getElementById("color-pickers");
+            
+            // Keep track of existing custom colors if possible, or set defaults
+            let defaultColors = ["#e0e0e0", "#ffeb3b", "#ff4081", "#4caf50", "#2196f3", "#9c27b0", "#ff9800", "#00bcd4", "#795548", "#607d8b"];
+            
+            let html = "<strong>Customize Colors:</strong><br>";
+            for (let i = 0; i < mod; i++) {
+                let existingPicker = document.getElementById(`color-${i}`);
+                let color = existingPicker ? existingPicker.value : defaultColors[i % defaultColors.length];
+                html += `<label>R:${i} <input type="color" id="color-${i}" value="${color}" onchange="generate()"></label> `;
+            }
+            container.innerHTML = html;
+        }
+
         function generate() {
             let numRows = parseInt(document.getElementById("rows").value);
             let mod = parseInt(document.getElementById("mod").value);
-            let triangle = [];
             
+            if (!document.getElementById("color-0")) {
+                updateColors();
+            }
+
+            let triangle = [];
             for (let i = 0; i < numRows; i++) {
                 let row = new Array(i + 1).fill(1);
                 for (let j = 1; j < i; j++) {
@@ -31,14 +57,28 @@
                 triangle.push(row);
             }
 
-            let text = "";
+            let outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "";
+
             for (let i = 0; i < triangle.length; i++) {
-                let padding = "  ".repeat(numRows - i - 1);
-                let rowStr = triangle[i].map(val => val === 0 ? "░░" : (val === 1 ? "██" : "▒▒")).join("");
-                text += padding + rowStr + "\n";
+                let rowDiv = document.createElement("div");
+                rowDiv.className = "row";
+                for (let val of triangle[i]) {
+                    let cell = document.createElement("div");
+                    cell.className = "cell";
+                    cell.textContent = val;
+                    
+                    let colorInput = document.getElementById(`color-${val}`);
+                    cell.style.backgroundColor = colorInput ? colorInput.value : "#ccc";
+                    
+                    rowDiv.appendChild(cell);
+                }
+                outputDiv.appendChild(rowDiv);
             }
-            document.getElementById("output").textContent = text;
         }
+
+        // Initialize on load
+        updateColors();
         generate();
     </script>
 </body>
