@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pascal's Triangle Modulo n</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
+        input { padding: 5px; margin: 10px; width: 60px; text-align: center; }
+        pre { font-size: 14px; line-height: 1.2; background: white; padding: 20px; display: inline-block; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <h1>Pascal's Triangle Modulo n</h1>
+    <label>Rows: <input type="number" id="rows" value="12" min="1" max="30" oninput="generate()"></label>
+    <label>Mod (n): <input type="number" id="mod" value="3" min="2" max="10" oninput="generate()"></label>
+    <br>
+    <pre id="output"></pre>
+
+    <script>
+        function generate() {
+            let numRows = parseInt(document.getElementById("rows").value);
+            let mod = parseInt(document.getElementById("mod").value);
+            let triangle = [];
+            
+            for (let i = 0; i < numRows; i++) {
+                let row = new Array(i + 1).fill(1);
+                for (let j = 1; j < i; j++) {
+                    row[j] = (triangle[i - 1][j - 1] + triangle[i - 1][j]) % mod;
+                }
+                triangle.push(row);
+            }
+
+            let text = "";
+            for (let i = 0; i < triangle.length; i++) {
+                let padding = "  ".repeat(numRows - i - 1);
+                let rowStr = triangle[i].map(val => val === 0 ? "░░" : (val === 1 ? "██" : "▒▒")).join("");
+                text += padding + rowStr + "\n";
+            }
+            document.getElementById("output").textContent = text;
+        }
+        generate();
+    </script>
+</body>
+</html>
